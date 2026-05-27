@@ -1,0 +1,35 @@
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# Файлы Visual Studio (они пересоздаются автоматически)
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+
+# Метафайлы
+*.pidb
+*.pidb.meta
+*.pdb
+*.mdb
+/[Mm]emoryCaptures/
+
+# Папка кэша Visual Studio
+.vs/
+
+# Другие IDE
+.idea/          # JetBrains Rider
+.consulo/
+
+# Готовые сборки
+*.apk
+*.aab
+*.unitypackage
+*.exe
+*.app
