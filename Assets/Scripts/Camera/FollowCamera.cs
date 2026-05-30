@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class FollowCamera : MonoBehaviour
 {
-    [Header("Цель (игрок)")]
+    /*[Header("Цель (игрок)")]
     public Transform target;              // Игрок, за которым следит камера
 
     [Header("Расстояние от игрока")]
@@ -100,5 +100,5 @@ public class FollowCamera : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawLine(target.position, camPos);
         }
-    }
+    }*/
 }

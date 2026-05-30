@@ -1294,7 +1294,7 @@ MonoBehaviour:
   nextLevelButtonText: {fileID: 1647341544}
   defeatResultText: {fileID: 1474283939}
   defeatEnemiesKilledText: {fileID: 1796960983}
-  totalLevels: 5
+  totalLevels: 1
 --- !u!4 &347150672
 Transform:
   m_ObjectHideFlags: 0
@@ -2009,13 +2009,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 633251858}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5735764, y: 0, z: 0, w: 0.8191521}
-  m_LocalPosition: {x: 10, y: 40, z: -10}
+  m_LocalRotation: {x: 0.2164396, y: 0, z: 0, w: 0.97629607}
+  m_LocalPosition: {x: 27, y: 12, z: -28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 70, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 25, y: 0, z: 0}
 --- !u!114 &633251862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2029,16 +2029,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonCamera
   target: {fileID: 0}
-  offset: {x: 0, y: 2.5, z: -4}
-  followSpeed: 5
-  rotationSpeed: 3
-  rotateWithPlayer: 1
-  maxDistance: 6
-  minDistance: 0.2
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  smoothTime: 0.3
+  offset: {x: 0, y: 1.5, z: -3}
+  followSpeed: 10
+  mouseSensitivity: 2
+  maxVerticalAngle: 60
+  minVerticalAngle: -40
 --- !u!114 &633251863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2051,17 +2046,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73546d662a93a6845bfa892906632d47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FollowCamera
-  target: {fileID: 0}
-  distanceFromPlayer: 4
-  heightAbovePlayer: 1.8
-  smoothSpeed: 5
-  rotationSmoothSpeed: 8
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  minDistance: 1.5
-  rotateWithPlayer: 1
-  cameraTiltAngle: 15
 --- !u!1 &641223141
 GameObject:
   m_ObjectHideFlags: 0
@@ -2096,8 +2080,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: 350}
-  m_SizeDelta: {x: 280, y: 50}
+  m_AnchoredPosition: {x: 700, y: 350}
+  m_SizeDelta: {x: 280, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &641223143
 MonoBehaviour:
@@ -2128,8 +2112,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2146,14 +2130,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 56
-  m_fontSizeBase: 56
+  m_fontSize: 48
+  m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_fontStyle: 1
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -2233,8 +2217,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 200, y: 350}
-  m_SizeDelta: {x: 280, y: 50}
+  m_AnchoredPosition: {x: 700, y: 280}
+  m_SizeDelta: {x: 280, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &664602437
 MonoBehaviour:
@@ -2265,8 +2249,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2283,14 +2267,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 56
-  m_fontSizeBase: 56
+  m_fontSize: 48
+  m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_fontStyle: 1
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -3375,22 +3359,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8a525b4ff04a0c468dbb7beea4496ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MazeGenerator
-  wallPrefab: {fileID: 5557376094045071654, guid: e767cc3246a0c3b40a33b2ad89673363, type: 3}
-  floorPrefab: {fileID: 4957191398822626586, guid: e8162a89a8fd64242a486f3e06d5781a, type: 3}
-  playerPrefab: {fileID: 675981017494854766, guid: f087b9dda7cc0e64bb8f4d244d0c27a9, type: 3}
-  castlePrefab: {fileID: 8928420477721149605, guid: 512d63612eb15824ea79964cf0260b35, type: 3}
-  enemyPrefabs:
-  - {fileID: 309011822793663907, guid: 3d711da1b08e8c24a8c975c2e8714d50, type: 3}
-  - {fileID: 309011822793663907, guid: a2dd88063c7ad7a43af8bc1453766742, type: 3}
-  - {fileID: 309011822793663907, guid: 1d870c3fc41f5f64180e056163c4fe7a, type: 3}
-  - {fileID: 309011822793663907, guid: 851e7675f4fb017419c79dd614b33495, type: 3}
-  - {fileID: 309011822793663907, guid: aa2c0ae88aabb284a8d1893a80df6151, type: 3}
-  - {fileID: 309011822793663907, guid: c844ac3defe42bf4dad48000d988bc40, type: 3}
-  width: 20
-  height: 20
-  cellSize: 2
-  wallMaterial: {fileID: 0}
-  floorMaterial: {fileID: 0}
 --- !u!1 &1270209910
 GameObject:
   m_ObjectHideFlags: 0
@@ -3820,7 +3788,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1553538455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3833,128 +3801,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b546b5a9a21e8c45bb2eb7bb20b774e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TerrainGenerator
-  currentLevelSettings:
-    levelNumber: 1
-    seed: 0
-    levelName: Level 1
-    mapSize: 30
-    cellSize: 2
-    heightMultiplier: 2
-    noiseScale: 0.1
-    octaves: 3
-    persistence: 0.5
-    lacunarity: 2
-    borderWidth: 3
-    borderTreeDensity: 0.7
-    borderRockDensity: 0.3
-    playerSpawn: 0
-    playerSpawnOffsetFromBorder: 2
-    castleSpawnMode: 0
-    castleMinDistanceFromPlayer: 15
-    castleMaxDistanceFromPlayer: 30
-    castleMinDistanceFromCenter: 0
-    castleMaxDistanceFromCenter: 30
-    enemiesSetup: []
-    treeDensity: 0.05
-    rockDensity: 0.02
-    bushDensity: 0.03
-    hasWater: 1
-    waterLevel: 0.5
-  allLevels:
-  - levelNumber: 1
-    seed: 1
-    levelName: 
-    mapSize: 30
-    cellSize: 2
-    heightMultiplier: 2
-    noiseScale: 0.1
-    octaves: 3
-    persistence: 0.5
-    lacunarity: 2
-    borderWidth: 3
-    borderTreeDensity: 0.7
-    borderRockDensity: 0.3
-    playerSpawn: 1
-    playerSpawnOffsetFromBorder: 2
-    castleSpawnMode: 0
-    castleMinDistanceFromPlayer: 45
-    castleMaxDistanceFromPlayer: 55
-    castleMinDistanceFromCenter: 0
-    castleMaxDistanceFromCenter: 0
-    enemiesSetup:
-    - enemyPrefab: {fileID: 8272943599224061573, guid: 7d28bebe5ea4fc94790ffb789d979d77, type: 3}
-      count: 4
-      useCustomPower: 0
-      customPower: 0
-    - enemyPrefab: {fileID: 309011822793663907, guid: 3d711da1b08e8c24a8c975c2e8714d50, type: 3}
-      count: 2
-      useCustomPower: 0
-      customPower: 0
-    treeDensity: 0.05
-    rockDensity: 0.02
-    bushDensity: 0.03
-    hasWater: 0
-    waterLevel: 0.5
-  - levelNumber: 2
-    seed: 2
-    levelName: 
-    mapSize: 30
-    cellSize: 2
-    heightMultiplier: 4
-    noiseScale: 0.2
-    octaves: 4
-    persistence: 0.5
-    lacunarity: 2
-    borderWidth: 3
-    borderTreeDensity: 0.7
-    borderRockDensity: 0.3
-    playerSpawn: 1
-    playerSpawnOffsetFromBorder: 10
-    castleSpawnMode: 1
-    castleMinDistanceFromPlayer: 10
-    castleMaxDistanceFromPlayer: 20
-    castleMinDistanceFromCenter: 0
-    castleMaxDistanceFromCenter: 0
-    enemiesSetup:
-    - enemyPrefab: {fileID: 8272943599224061573, guid: 7d28bebe5ea4fc94790ffb789d979d77, type: 3}
-      count: 6
-      useCustomPower: 0
-      customPower: 0
-    - enemyPrefab: {fileID: 309011822793663907, guid: 3d711da1b08e8c24a8c975c2e8714d50, type: 3}
-      count: 3
-      useCustomPower: 0
-      customPower: 0
-    treeDensity: 0.02
-    rockDensity: 0.02
-    bushDensity: 0.03
-    hasWater: 0
-    waterLevel: 0.5
-  currentLevel: 1
-  playerPrefab: {fileID: 1319517528997712, guid: 3334a2292eb9a8b4793a618f6a37f83d, type: 3}
-  castlePrefab: {fileID: 8928420477721149605, guid: 512d63612eb15824ea79964cf0260b35, type: 3}
-  enemyPrefabs:
-  - {fileID: 8272943599224061573, guid: 7d28bebe5ea4fc94790ffb789d979d77, type: 3}
-  - {fileID: 309011822793663907, guid: 3d711da1b08e8c24a8c975c2e8714d50, type: 3}
-  - {fileID: 309011822793663907, guid: a2dd88063c7ad7a43af8bc1453766742, type: 3}
-  - {fileID: 309011822793663907, guid: 851e7675f4fb017419c79dd614b33495, type: 3}
-  - {fileID: 309011822793663907, guid: aa2c0ae88aabb284a8d1893a80df6151, type: 3}
-  - {fileID: 309011822793663907, guid: c844ac3defe42bf4dad48000d988bc40, type: 3}
-  treePrefabs:
-  - {fileID: 2222111361404534124, guid: e633afef1a8f22b468b5c041a7f2e73c, type: 3}
-  - {fileID: 4661435515762455780, guid: 2e4b8a5967eb7b74795a643d09b2d4fc, type: 3}
-  - {fileID: 6941765000743290380, guid: 54b224073f81a1340855b8f6b6f48d75, type: 3}
-  - {fileID: 2807449429036958551, guid: e5df0544f56cfe242b06de372dd02924, type: 3}
-  - {fileID: 9069115365609291303, guid: 69a30f7a013419849b4ef6c4536f3a49, type: 3}
-  rockPrefabs:
-  - {fileID: 7405846476849542632, guid: dbad65aef75bb8146bbb92a40fb4fe8c, type: 3}
-  - {fileID: 5202732821079448320, guid: 2661638725fd8e945ad52ce0f50865dc, type: 3}
-  - {fileID: 4680757731160225450, guid: 8e16ba327e173ed4cae9191d9b685dde, type: 3}
-  - {fileID: 8783306491908617939, guid: ebb616f3b5ee5d54abd0cf061eb8a745, type: 3}
-  - {fileID: 1576488453971893466, guid: 25cc0ac00b81827489ea52e2b23d07b9, type: 3}
-  bushPrefab: {fileID: 4263922822445002727, guid: 78f7b57fbe72d0f4d8b3f5ce025e480f, type: 3}
-  groundMaterial: {fileID: 2100000, guid: 43f27ca15e9d0304ebc6b46c2a591859, type: 2}
-  waterMaterial: {fileID: 0}
-  waterPlanePrefab: {fileID: 0}
 --- !u!4 &1553538456
 Transform:
   m_ObjectHideFlags: 0
@@ -5348,7 +5194,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2146418568
 RectTransform:
   m_ObjectHideFlags: 0

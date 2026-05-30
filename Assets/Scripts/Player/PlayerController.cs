@@ -9,18 +9,16 @@ public class PlayerController : MonoBehaviour
     public float rotationSpeed = 10f;
     public LayerMask wallLayer;
 
-    [Header("Настройки боя")]
-    public float attackRange = 2f;           // Дистанция атаки
-    public LayerMask enemyLayer;             // Слой врагов
-
-    [Header("Настройки комбо")]
-    public float comboWindow = 0.8f;
-    public float attackCooldown = 0.5f;
+    [Header("Настройки атаки")]
+    public float attackRange = 2.5f;
+    public float attackCooldown = 1.5f;
+    public LayerMask enemyLayer;
 
     [Header("Компоненты")]
     private Rigidbody rb;
     private PlayerCombat combat;
     private Animator animator;
+    private Camera playerCamera;
 
     [Header("Состояние")]
     private Vector3 moveDirection;
@@ -29,14 +27,13 @@ public class PlayerController : MonoBehaviour
     private float currentSpeed = 0f;
     private bool isGrounded = true;
 
-    // Параметры для комбо-атак
-    private int comboIndex = 0;
     private float lastAttackTime = 0f;
-    private bool canCombo = false;
     private bool isAttacking = false;
+    private Coroutine currentAttackCoroutine = null;
 
-    // Ближайший враг для атаки
     private Enemy targetEnemy = null;
+    private bool enemyIsAttacking = false;      // Враг атакует?
+    private bool waitingForEnemyAttack = false; // Ждём атаку врага
 
     void Start()
     {
@@ -44,7 +41,6 @@ public class PlayerController : MonoBehaviour
         if (rb == null)
             rb = gameObject.AddComponent<Rigidbody>();
 
-        // Настройка Rigidbody
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         rb.freezeRotation = true;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
@@ -53,7 +49,14 @@ public class PlayerController : MonoBehaviour
         combat = GetComponent<PlayerCombat>();
         animator = GetComponent<Animator>();
 
-        // Настройка слоёв
+        playerCamera = Camera.main;
+        if (playerCamera == null)
+        {
+            Camera cam = FindObjectOfType<Camera>();
+            if (cam != null)
+                playerCamera = cam;
+        }
+
         int obstacleLayer = LayerMask.NameToLayer("Obstacle");
         if (obstacleLayer != -1)
         {
@@ -61,7 +64,6 @@ public class PlayerController : MonoBehaviour
         }
         wallLayer |= LayerMask.GetMask("Default");
 
-        // Если слой врагов не задан, ищем по тегу
         if (enemyLayer == 0)
         {
             enemyLayer = LayerMask.GetMask("Enemy");
@@ -80,33 +82,61 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // ПОИСК БЛИЖАЙШЕГО ВРАГА для атаки
         FindNearestEnemy();
 
-        // Ввод движения (только если не в бою и не атакует)
+        // Подписываемся на события врага
+        if (targetEnemy != null && targetEnemy.IsAlive)
+        {
+            targetEnemy.OnAttackFinished -= OnEnemyAttackFinished;
+            targetEnemy.OnAttackFinished += OnEnemyAttackFinished;
+
+            targetEnemy.OnDeathStarted -= OnEnemyDeathStarted;
+            targetEnemy.OnDeathStarted += OnEnemyDeathStarted;
+        }
+
+        // Если враг умер - отписываемся
+        if (targetEnemy != null && !targetEnemy.IsAlive)
+        {
+            if (targetEnemy != null)
+            {
+                targetEnemy.OnAttackFinished -= OnEnemyAttackFinished;
+                targetEnemy.OnDeathStarted -= OnEnemyDeathStarted;
+            }
+            targetEnemy = null;
+            waitingForEnemyAttack = false;
+            enemyIsAttacking = false;
+        }
+
+        // Ввод движения
         float horizontal = 0;
         float vertical = 0;
+        bool canAct = !isFighting && !isAttacking && canMove && !IsDead();
 
-        if (!isFighting && !isAttacking && canMove && !IsDead())
+        if (canAct)
         {
             horizontal = Input.GetAxisRaw("Horizontal");
             vertical = Input.GetAxisRaw("Vertical");
         }
 
-        moveDirection = new Vector3(horizontal, 0, vertical).normalized;
-
-        // Вычисление скорости для анимаций и движения
-        if (moveDirection.magnitude > 0.1f && !isFighting && !isAttacking && !IsDead())
+        // Движение относительно камеры
+        if (playerCamera != null && (horizontal != 0 || vertical != 0) && canAct)
         {
-            // Shift для бега
-            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-            {
-                currentSpeed = runSpeed;    // 6 для физики
-            }
-            else
-            {
-                currentSpeed = walkSpeed;   // 3 для физики
-            }
+            Vector3 cameraForward = playerCamera.transform.forward;
+            Vector3 cameraRight = playerCamera.transform.right;
+            cameraForward.y = 0;
+            cameraRight.y = 0;
+            cameraForward.Normalize();
+            cameraRight.Normalize();
+            moveDirection = (cameraForward * vertical + cameraRight * horizontal).normalized;
+        }
+        else
+        {
+            moveDirection = Vector3.zero;
+        }
+
+        if (moveDirection.magnitude > 0.1f && canAct)
+        {
+            currentSpeed = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) ? runSpeed : walkSpeed;
         }
         else
         {
@@ -115,29 +145,63 @@ public class PlayerController : MonoBehaviour
 
         UpdateAnimations();
 
-        // Обработка атаки
-        if (Input.GetButtonDown("Fire1") && !isFighting && !isAttacking && !IsDead())
+        // АВТОМАТИЧЕСКАЯ АТАКА (только если не ждём врага)
+        if (targetEnemy != null && targetEnemy.IsAlive && !isAttacking && !isFighting && !IsDead() && !waitingForEnemyAttack)
         {
-            // Проверяем, есть ли враг в радиусе атаки
-            if (IsEnemyInRange())
+            if (Time.time - lastAttackTime >= attackCooldown)
             {
                 Attack();
-            }
-            else
-            {
-                Debug.Log("Слишком далеко от врага для атаки!");
             }
         }
 
         UpdatePlayerHeight();
     }
 
-    // Поиск ближайшего врага
+    void OnEnemyAttackFinished()
+    {
+        Debug.Log("Враг закончил атаку - игрок может начинать атаку");
+        waitingForEnemyAttack = false;
+        enemyIsAttacking = false;
+    }
+
+    void OnEnemyDeathStarted()
+    {
+        Debug.Log("Враг начал умирать - игрок завершает атаку");
+
+        // Если игрок атакует - завершаем атаку
+        if (isAttacking)
+        {
+            FinishAttackEarly();
+        }
+    }
+
+    void FinishAttackEarly()
+    {
+        if (!isAttacking) return;
+
+        Debug.Log("Досрочное завершение атаки игрока");
+
+        if (currentAttackCoroutine != null)
+        {
+            StopCoroutine(currentAttackCoroutine);
+            currentAttackCoroutine = null;
+        }
+
+        isAttacking = false;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsAttacking", false);
+            animator.ResetTrigger("Attack");
+            animator.Play("Idle", 0, 0);
+        }
+    }
+
     void FindNearestEnemy()
     {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRange, enemyLayer);
         float closestDistance = attackRange;
-        targetEnemy = null;
+        Enemy newTarget = null;
 
         foreach (var hitCollider in hitColliders)
         {
@@ -148,120 +212,122 @@ public class PlayerController : MonoBehaviour
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
-                    targetEnemy = enemy;
+                    newTarget = enemy;
                 }
             }
         }
-    }
 
-    // Проверка, есть ли враг в радиусе атаки
-    bool IsEnemyInRange()
-    {
-        return targetEnemy != null;
+        // Если сменился враг - сбрасываем ожидание
+        if (targetEnemy != newTarget)
+        {
+            waitingForEnemyAttack = false;
+            enemyIsAttacking = false;
+        }
+
+        targetEnemy = newTarget;
     }
 
     void UpdateAnimations()
     {
         if (animator == null) return;
 
-        // Определяем целевую скорость анимации
+        bool isMoving = moveDirection.magnitude > 0.1f && !isFighting && !isAttacking && !IsDead();
         float targetAnimSpeed = 0f;
-        
-        if (moveDirection.magnitude > 0.1f && !isFighting && !isAttacking && !IsDead())
+
+        if (isMoving)
         {
-            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-            {
-                targetAnimSpeed = 1f;   // Бег (должно быть > 0.5 в Animator)
-            }
-            else
-            {
-                targetAnimSpeed = 0.3f; // Ходьба (должно быть > 0.1 в Animator)
-            }
+            targetAnimSpeed = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) ? 1f : 0.3f;
         }
-        
-        // Плавное изменение скорости анимации
-        float currentAnimSpeed = animator.GetFloat("Speed");
-        float newAnimSpeed = Mathf.Lerp(currentAnimSpeed, targetAnimSpeed, Time.deltaTime * 10f);
-        
+
+        float newAnimSpeed = Mathf.Lerp(animator.GetFloat("Speed"), targetAnimSpeed, Time.deltaTime * 10f);
         animator.SetFloat("Speed", newAnimSpeed);
-        //animator.SetFloat("RawSpeed", currentSpeed);
-        animator.SetBool("IsMoving", moveDirection.magnitude > 0.1f && !isFighting && !isAttacking);
+        animator.SetBool("IsMoving", isMoving);
+        animator.SetBool("IsFighting", isFighting);
+        animator.SetBool("IsAttacking", isAttacking);
 
         if (moveDirection.magnitude > 0.1f)
         {
             animator.SetFloat("MoveX", moveDirection.x);
             animator.SetFloat("MoveZ", moveDirection.z);
         }
-
-        //animator.SetBool("IsGrounded", isGrounded);
-        animator.SetBool("IsFighting", isFighting);
     }
 
     void Attack()
     {
         if (animator == null) return;
-
-        // Если врага нет в радиусе — не атакуем
-        if (!IsEnemyInRange())
-        {
-            Debug.Log("Нет врага в радиусе атаки!");
-            return;
-        }
-
-        float timeSinceLastAttack = Time.time - lastAttackTime;
-
-        if (canCombo && timeSinceLastAttack < comboWindow)
-        {
-            comboIndex = (comboIndex + 1) % 2;
-            animator.SetInteger("ComboIndex", comboIndex);
-            animator.SetTrigger("Attack");
-            canCombo = false;
-        }
-        else
-        {
-            comboIndex = 0;
-            animator.SetInteger("ComboIndex", comboIndex);
-            animator.SetTrigger("Attack");
-            canCombo = true;
-        }
+        if (targetEnemy == null || !targetEnemy.IsAlive) return;
 
         lastAttackTime = Time.time;
-        StartCoroutine(AttackSequence());
-
-        // Наносим урон врагу (если нужно)
-        if (targetEnemy != null && combat != null)
-        {
-            StartCoroutine(FightSequence(targetEnemy));
-        }
+        if (currentAttackCoroutine != null) StopCoroutine(currentAttackCoroutine);
+        currentAttackCoroutine = StartCoroutine(PerformAttack());
     }
 
-    IEnumerator AttackSequence()
+    IEnumerator PerformAttack()
     {
         isAttacking = true;
-        yield return new WaitForSeconds(attackCooldown);
-        isAttacking = false;
+        waitingForEnemyAttack = true;
+        animator.SetBool("IsAttacking", true);
+        animator.SetTrigger("Attack");
 
-        yield return new WaitForSeconds(comboWindow - attackCooldown);
-        if (!isAttacking)
+        Debug.Log("Игрок начал атаку, ждёт атаку врага");
+
+        // Поворот к врагу
+        if (targetEnemy != null && targetEnemy.IsAlive)
         {
-            canCombo = false;
-            comboIndex = 0;
-            if (animator != null)
-                animator.SetInteger("ComboIndex", 0);
+            Vector3 directionToEnemy = targetEnemy.transform.position - transform.position;
+            directionToEnemy.y = 0;
+            if (directionToEnemy != Vector3.zero)
+                transform.rotation = Quaternion.LookRotation(directionToEnemy);
         }
+
+        // ЖДЁМ, ПОКА ВРАГ ЗАКОНЧИТ АТАКУ
+        float waitTime = 2f; // Максимальное время ожидания
+        float elapsed = 0f;
+
+        while (waitingForEnemyAttack && elapsed < waitTime)
+        {
+            // Если враг умер - выходим
+            if (targetEnemy == null || !targetEnemy.IsAlive)
+            {
+                Debug.Log("Враг умер во время ожидания");
+                FinishAttackEarly();
+                yield break;
+            }
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (!waitingForEnemyAttack)
+        {
+            Debug.Log("Враг закончил атаку - игрок наносит удар!");
+
+            // НАНЕСЕНИЕ УРОНА
+            if (targetEnemy != null && targetEnemy.IsAlive && combat != null)
+            {
+                StartCoroutine(FightSequence(targetEnemy));
+            }
+        }
+
+        // Небольшая задержка для возврата в позу
+        yield return new WaitForSeconds(0.2f);
+
+        isAttacking = false;
+        animator.SetBool("IsAttacking", false);
+        currentAttackCoroutine = null;
+        waitingForEnemyAttack = false;
+
+        Debug.Log("Атака игрока завершена");
     }
 
     void UpdatePlayerHeight()
     {
         Vector3 rayStart = transform.position + Vector3.up * 3f;
-        float rayLength = 8f;
         int groundLayerMask = LayerMask.GetMask("Ground");
 
-        if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, rayLength, groundLayerMask))
+        if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 8f, groundLayerMask))
         {
             float targetHeight = hit.point.y + 0.5f;
-            float maxHeightChange = 8f * Time.deltaTime;
-            float newY = Mathf.MoveTowards(transform.position.y, targetHeight, maxHeightChange);
+            float newY = Mathf.MoveTowards(transform.position.y, targetHeight, 8f * Time.deltaTime);
             transform.position = new Vector3(transform.position.x, newY, transform.position.z);
             isGrounded = true;
         }
@@ -273,131 +339,63 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (GameManager.Instance != null && GameManager.Instance.IsGameOver)
-            return;
+        if (GameManager.Instance != null && GameManager.Instance.IsGameOver) return;
 
-        // ДВИЖЕНИЕ — только если не в бою и не атакует
-        if (canMove && !isFighting && !isAttacking && !IsDead() && moveDirection.magnitude > 0.1f)
+        bool canMoveNow = canMove && !isFighting && !isAttacking && !IsDead() && moveDirection.magnitude > 0.1f;
+
+        if (canMoveNow)
         {
             Vector3 targetVelocity = moveDirection * currentSpeed;
-            
-            // Сохраняем вертикальную скорость (гравитация)
             targetVelocity.y = rb.linearVelocity.y;
-            
             rb.linearVelocity = targetVelocity;
 
             if (moveDirection != Vector3.zero)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveDirection), rotationSpeed * Time.fixedDeltaTime);
             }
         }
         else
         {
-            // Торможение: сохраняем только вертикальную скорость
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
-        }
-    }
-
-    bool WillCollideWithWall(Vector3 targetPosition)
-    {
-        Collider[] colliders = Physics.OverlapSphere(targetPosition, 0.4f, wallLayer);
-        return colliders.Length > 0;
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        Enemy enemy = collision.gameObject.GetComponent<Enemy>();
-        if (enemy != null && enemy.IsAlive && combat != null && !isFighting)
-        {
-            // Атакуем врага при касании
-            StartCoroutine(FightSequence(enemy));
-        }
-
-        if (collision.gameObject.CompareTag("Castle"))
-        {
-            GameManager.Instance?.GameOver(true);
         }
     }
 
     IEnumerator FightSequence(Enemy enemy)
     {
         if (isFighting) yield break;
-
         isFighting = true;
-        Debug.Log("Битва началась! Движение заблокировано.");
 
-        if (animator != null)
-        {
-            animator.SetBool("IsFighting", true);
-        }
+        if (animator != null) animator.SetBool("IsFighting", true);
 
         combat.FightEnemy(enemy);
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
 
         isFighting = false;
-        if (animator != null)
-        {
-            animator.SetBool("IsFighting", false);
-        }
-        Debug.Log("Битва закончилась! Движение разблокировано.");
-    }
-
-    public void DisableMovement()
-    {
-        canMove = false;
-        moveDirection = Vector3.zero;
-        if (animator != null)
-        {
-            animator.SetFloat("Speed", 0f);
-            animator.SetBool("IsMoving", false);
-        }
-    }
-
-    public void EnableMovement()
-    {
-        canMove = true;
-    }
-
-    public void TakeDamage()
-    {
-        if (animator != null && !IsDead())
-        {
-            animator.SetTrigger("GetHit");
-        }
+        if (animator != null) animator.SetBool("IsFighting", false);
     }
 
     public void Die()
     {
-        if (animator != null)
-        {
-            animator.SetBool("IsDead", true);
-        }
+        if (animator != null) animator.SetBool("IsDead", true);
         canMove = false;
         isFighting = false;
         isAttacking = false;
+        waitingForEnemyAttack = false;
+        if (currentAttackCoroutine != null) StopCoroutine(currentAttackCoroutine);
     }
 
     public void Revive()
     {
-        if (animator != null)
-        {
-            animator.SetBool("IsDead", false);
-        }
+        if (animator != null) animator.SetBool("IsDead", false);
         canMove = true;
     }
 
     private bool IsDead()
     {
-        if (animator != null)
-        {
-            return animator.GetBool("IsDead");
-        }
-        return false;
+        return animator != null && animator.GetBool("IsDead");
     }
 
-    // Визуализация радиуса атаки в редакторе
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

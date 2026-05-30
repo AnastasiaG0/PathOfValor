@@ -2,81 +2,94 @@ using UnityEngine;
 
 public class ThirdPersonCamera : MonoBehaviour
 {
-    [Header("Целевой игрок")]
-    public Transform target;           // Игрок, за которым следит камера
+    [Header("Настройки следования")]
+    public Transform target;              // Цель (персонаж)
+    public Vector3 offset = new Vector3(0, 1.5f, -3f); // Смещение камеры
+    public float followSpeed = 10f;       // Скорость следования
 
-    [Header("Настройки позиции")]
-    public Vector3 offset = new Vector3(0, 3, -5);  // Смещение относительно игрока
-    public float followSpeed = 5f;      // Скорость следования
+    [Header("Настройки поворота мыши")]
+    public float mouseSensitivity = 2f;   // Чувствительность мыши
+    public float maxVerticalAngle = 60f;  // Максимальный угол поворота вверх
+    public float minVerticalAngle = -40f; // Минимальный угол поворота вниз
 
-    [Header("Настройки поворота")]
-    public float rotationSpeed = 3f;    // Скорость поворота камеры
-    public bool rotateWithPlayer = true; // Поворачиваться ли за игроком
+    private float horizontalAngle = 0f;   // Горизонтальный угол
+    private float verticalAngle = 20f;    // Вертикальный угол
 
-    [Header("Ограничения обзора")]
-    public float maxDistance = 8f;       // Максимальная дистанция от игрока
-    public float minDistance = 2f;       // Минимальная дистанция от игрока
-    public LayerMask obstacleLayer;      // Слои, которые блокируют обзор (стены)
-
-    [Header("Сглаживание")]
-    public float smoothTime = 0.3f;      // Время сглаживания
-    private Vector3 velocity = Vector3.zero;
-
-    void LateUpdate()
+    void Start()
     {
+        // Блокируем курсор
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        // Ищем персонажа
         if (target == null)
         {
-            // Поиск игрока, если не назначен
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
                 target = player.transform;
-            else
-                return;
         }
 
-        // Расчёт желаемой позиции камеры
-        Vector3 desiredPosition = target.position + offset;
+        // Начальная позиция камеры
+        UpdateCameraPosition();
+    }
 
-        // Проверка на препятствия
-        desiredPosition = CheckObstacles(desiredPosition);
+    void LateUpdate()
+    {
+        if (target == null) return;
 
-        // Плавное движение камеры
-        transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
-
-        // Поворот камеры к игроку
-        if (rotateWithPlayer)
+        // Ввод мыши
+        if (!IsGamePaused())
         {
-            Vector3 lookDirection = target.position - transform.position;
-            Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            horizontalAngle += Input.GetAxis("Mouse X") * mouseSensitivity;
+            verticalAngle -= Input.GetAxis("Mouse Y") * mouseSensitivity;
+            verticalAngle = Mathf.Clamp(verticalAngle, minVerticalAngle, maxVerticalAngle);
+        }
+
+        // Обновляем позицию камеры
+        UpdateCameraPosition();
+    }
+
+    void UpdateCameraPosition()
+    {
+        // ВАЖНО: Создаём вращение ТОЛЬКО по горизонтали (Y) и вертикали (X)
+        // НИКАКОГО вращения по Z (крена) - это сохраняет горизонт ровным!
+        Quaternion rotation = Quaternion.Euler(verticalAngle, horizontalAngle, 0);
+
+        // Вычисляем позицию: позиция персонажа + поворот * смещение
+        Vector3 desiredPosition = target.position + rotation * offset;
+
+        // Мгновенное перемещение (без плавности, чтобы не было "пьяного" эффекта)
+        transform.position = desiredPosition;
+
+        // Камера всегда смотрит на персонажа (это сохраняет горизонт ровным)
+        transform.LookAt(target.position + Vector3.up * 1.5f);
+    }
+
+    private bool IsGamePaused()
+    {
+        if (GameManager.Instance != null && GameManager.Instance.IsGameOver)
+            return true;
+        return false;
+    }
+
+    public void SetCursorLock(bool locked)
+    {
+        if (locked)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 
-    Vector3 CheckObstacles(Vector3 desiredPosition)
+    public void ResetCameraAngles()
     {
-        Vector3 direction = desiredPosition - target.position;
-        float distance = direction.magnitude;
-
-        // Ограничиваем дистанцию
-        distance = Mathf.Clamp(distance, minDistance, maxDistance);
-
-        RaycastHit hit;
-        if (Physics.Raycast(target.position, direction.normalized, out hit, distance, obstacleLayer))
-        {
-            // Если есть препятствие, ставим камеру перед ним
-            return hit.point - direction.normalized * 0.3f;
-        }
-
-        return target.position + direction.normalized * distance;
-    }
-
-    // Визуализация луча в редакторе
-    void OnDrawGizmosSelected()
-    {
-        if (target != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(target.position, (target.position + offset - target.position).normalized * maxDistance);
-        }
+        horizontalAngle = 0f;
+        verticalAngle = 20f;
+        UpdateCameraPosition();
     }
 }

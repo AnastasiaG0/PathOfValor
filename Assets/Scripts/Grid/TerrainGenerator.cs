@@ -4,7 +4,7 @@ using System.Linq;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    [Header("Настройки уровня")]
+    /*[Header("Настройки уровня")]
     public LevelSettings currentLevelSettings;
     public LevelSettings[] allLevels;
     public int currentLevel = 1;
@@ -671,5 +671,5 @@ public class TerrainGenerator : MonoBehaviour
     [ContextMenu("Load Next Level")]
     public void LoadNextLevelTest() => NextLevel();
 
-    public GameObject waterPlanePrefab;
+    public GameObject waterPlanePrefab;*/
 }

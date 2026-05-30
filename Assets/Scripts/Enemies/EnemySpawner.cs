@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Header("Префабы врагов")]
+    /*[Header("Префабы врагов")]
     public GameObject[] enemyPrefabs;
 
     [Header("Позиции спавна")]
@@ -60,5 +60,5 @@ public class EnemySpawner : MonoBehaviour
     {
         activeEnemies.RemoveAll(e => e == null || !e.IsAlive);
         return activeEnemies.Count;
-    }
+    }*/
 }

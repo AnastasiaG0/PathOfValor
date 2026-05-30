@@ -95,17 +95,7 @@ public class GameManager : MonoBehaviour
 
     void LoadCurrentLevel()
     {
-        /*NatureMapGenerator mapGenerator = FindObjectOfType<NatureMapGenerator>();
-        if (mapGenerator != null && mapGenerator.currentLevel != currentLevel)
-        {
-            mapGenerator.currentLevel = currentLevel;
-        }*/
-
-        TerrainGenerator terrainGenerator = FindObjectOfType<TerrainGenerator>();
-        if (terrainGenerator != null && terrainGenerator.currentLevel != currentLevel)
-        {
-            terrainGenerator.currentLevel = currentLevel;
-        }
+        SceneManager.LoadScene($"Level{currentLevel}", LoadSceneMode.Additive);
     }
 
     void FindTotalEnemies()

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MazeGenerator : MonoBehaviour
 {
-    [Header("Префабы")]
+    /*[Header("Префабы")]
     public GameObject wallPrefab;
     public GameObject floorPrefab;
     public GameObject playerPrefab;
@@ -604,5 +604,5 @@ public class MazeGenerator : MonoBehaviour
         }
 
         Debug.Log($"Всего создано врагов: {spawnList.Count}. Выигрышная цепочка: {string.Join(" → ", winChainPowers)}");
-    }
+    }*/
 }
