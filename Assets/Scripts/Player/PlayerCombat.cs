@@ -34,39 +34,48 @@ public class PlayerCombat : MonoBehaviour
     {
         if (isDead) return;
 
-        // Воспроизводим анимацию атаки врага
-        enemy.PlayAttackAnimation();
-
-        // ЛОГИКА БОЯ
+        // ЛОГИКА БОЯ - СРАВНЕНИЕ СИЛЫ
         if (currentPower > enemy.power)
         {
-            // ПОБЕДА - враг умирает
+            // ПОБЕДА ИГРОКА
+            Debug.Log($"Игрок победил! {currentPower} > {enemy.power}");
             StartCoroutine(VictorySequence(enemy));
         }
         else
         {
-            // ПОРАЖЕНИЕ - игрок умирает
+            // ПОРАЖЕНИЕ ИГРОКА (ВРАГ ПОБЕДИЛ)
+            Debug.Log($"Игрок проиграл! {currentPower} <= {enemy.power}");
+
+            // НОВЫЙ ФЛАГ: сообщаем врагу о победе
+            enemy.SetVictorious();
+
             Die();
         }
     }
 
     IEnumerator VictorySequence(Enemy enemy)
     {
-        yield return new WaitForSeconds(0.3f);
-
-        // Увеличиваем силу
         currentPower += enemy.power;
         if (currentPower > maxPower)
             currentPower = maxPower;
 
         UpdatePowerUI();
 
-        // Уведомляем GameManager
         if (GameManager.Instance != null)
             GameManager.Instance.EnemyKilled(enemy.power);
 
-        // ВРАГ УМИРАЕТ
         enemy.Die();
+
+        float deathAnimLength = GetAnimationLength(enemy.animator, "Die");
+        yield return new WaitForSeconds(deathAnimLength);
+
+        Debug.Log("Анимация смерти врага завершена, игрок может двигаться");
+
+        PlayerController playerController = GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.SetCanMoveAfterVictory(true);
+        }
     }
 
     void UpdatePowerUI()
@@ -83,14 +92,12 @@ public class PlayerCombat : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // Анимация смерти игрока
         PlayerController playerController = GetComponent<PlayerController>();
         if (playerController != null)
         {
             playerController.Die();
         }
 
-        // Уведомляем GameManager о поражении
         if (GameManager.Instance != null)
             GameManager.Instance.GameOver(false);
     }
@@ -101,5 +108,20 @@ public class PlayerCombat : MonoBehaviour
         {
             GameManager.Instance.GameOver(true);
         }
+    }
+
+    private float GetAnimationLength(Animator anim, string animationName)
+    {
+        if (anim == null) return 0.5f;
+
+        AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
+        foreach (AnimationClip clip in clips)
+        {
+            if (clip.name.Contains(animationName))
+            {
+                return clip.length;
+            }
+        }
+        return 0.5f;
     }
 }

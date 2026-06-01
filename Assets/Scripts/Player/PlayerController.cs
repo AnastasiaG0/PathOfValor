@@ -32,8 +32,9 @@ public class PlayerController : MonoBehaviour
     private Coroutine currentAttackCoroutine = null;
 
     private Enemy targetEnemy = null;
-    private bool enemyIsAttacking = false;      // Враг атакует?
-    private bool waitingForEnemyAttack = false; // Ждём атаку врага
+    private bool enemyIsAttacking = false;
+    private bool waitingForEnemyAttack = false;
+    private bool canMoveAfterVictory = true;
 
     void Start()
     {
@@ -84,7 +85,6 @@ public class PlayerController : MonoBehaviour
 
         FindNearestEnemy();
 
-        // Подписываемся на события врага
         if (targetEnemy != null && targetEnemy.IsAlive)
         {
             targetEnemy.OnAttackFinished -= OnEnemyAttackFinished;
@@ -92,25 +92,28 @@ public class PlayerController : MonoBehaviour
 
             targetEnemy.OnDeathStarted -= OnEnemyDeathStarted;
             targetEnemy.OnDeathStarted += OnEnemyDeathStarted;
+
+            // НОВЫЕ ПОДПИСКИ
+            targetEnemy.OnHitMoment -= OnEnemyHitMoment;
+            targetEnemy.OnHitMoment += OnEnemyHitMoment;
         }
 
-        // Если враг умер - отписываемся
         if (targetEnemy != null && !targetEnemy.IsAlive)
         {
             if (targetEnemy != null)
             {
                 targetEnemy.OnAttackFinished -= OnEnemyAttackFinished;
                 targetEnemy.OnDeathStarted -= OnEnemyDeathStarted;
+                targetEnemy.OnHitMoment -= OnEnemyHitMoment;  // НОВОЕ
             }
             targetEnemy = null;
             waitingForEnemyAttack = false;
             enemyIsAttacking = false;
         }
 
-        // Ввод движения
         float horizontal = 0;
         float vertical = 0;
-        bool canAct = !isFighting && !isAttacking && canMove && !IsDead();
+        bool canAct = !isFighting && !isAttacking && canMove && !IsDead() && canMoveAfterVictory;
 
         if (canAct)
         {
@@ -118,7 +121,6 @@ public class PlayerController : MonoBehaviour
             vertical = Input.GetAxisRaw("Vertical");
         }
 
-        // Движение относительно камеры
         if (playerCamera != null && (horizontal != 0 || vertical != 0) && canAct)
         {
             Vector3 cameraForward = playerCamera.transform.forward;
@@ -145,7 +147,6 @@ public class PlayerController : MonoBehaviour
 
         UpdateAnimations();
 
-        // АВТОМАТИЧЕСКАЯ АТАКА (только если не ждём врага)
         if (targetEnemy != null && targetEnemy.IsAlive && !isAttacking && !isFighting && !IsDead() && !waitingForEnemyAttack)
         {
             if (Time.time - lastAttackTime >= attackCooldown)
@@ -159,7 +160,7 @@ public class PlayerController : MonoBehaviour
 
     void OnEnemyAttackFinished()
     {
-        Debug.Log("Враг закончил атаку - игрок может начинать атаку");
+        Debug.Log("Получен сигнал от врага: анимация атаки завершена!");
         waitingForEnemyAttack = false;
         enemyIsAttacking = false;
     }
@@ -168,10 +169,20 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("Враг начал умирать - игрок завершает атаку");
 
-        // Если игрок атакует - завершаем атаку
         if (isAttacking)
         {
             FinishAttackEarly();
+        }
+    }
+
+    // НОВЫЙ МЕТОД: вызывается в момент удара врага
+    void OnEnemyHitMoment()
+    {
+        Debug.Log("Враг нанёс удар! Игрок проигрывает анимацию удара");
+
+        if (animator != null)
+        {
+            animator.SetTrigger("HitMoment");
         }
     }
 
@@ -193,7 +204,7 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("IsAttacking", false);
             animator.ResetTrigger("Attack");
-            animator.Play("Idle", 0, 0);
+            //animator.Play("Idle", 0, 0);
         }
     }
 
@@ -217,7 +228,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Если сменился враг - сбрасываем ожидание
         if (targetEnemy != newTarget)
         {
             waitingForEnemyAttack = false;
@@ -269,9 +279,8 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsAttacking", true);
         animator.SetTrigger("Attack");
 
-        Debug.Log("Игрок начал атаку, ждёт атаку врага");
+        Debug.Log("Игрок начал атаку");
 
-        // Поворот к врагу
         if (targetEnemy != null && targetEnemy.IsAlive)
         {
             Vector3 directionToEnemy = targetEnemy.transform.position - transform.position;
@@ -280,35 +289,31 @@ public class PlayerController : MonoBehaviour
                 transform.rotation = Quaternion.LookRotation(directionToEnemy);
         }
 
-        // ЖДЁМ, ПОКА ВРАГ ЗАКОНЧИТ АТАКУ
-        float waitTime = 2f; // Максимальное время ожидания
-        float elapsed = 0f;
-
-        while (waitingForEnemyAttack && elapsed < waitTime)
+        while (waitingForEnemyAttack && targetEnemy != null && targetEnemy.IsAlive)
         {
-            // Если враг умер - выходим
             if (targetEnemy == null || !targetEnemy.IsAlive)
             {
-                Debug.Log("Враг умер во время ожидания");
+                Debug.Log("Враг умер до окончания атаки");
                 FinishAttackEarly();
                 yield break;
             }
-            elapsed += Time.deltaTime;
             yield return null;
         }
 
-        if (!waitingForEnemyAttack)
+        if (targetEnemy == null || !targetEnemy.IsAlive)
         {
-            Debug.Log("Враг закончил атаку - игрок наносит удар!");
-
-            // НАНЕСЕНИЕ УРОНА
-            if (targetEnemy != null && targetEnemy.IsAlive && combat != null)
-            {
-                StartCoroutine(FightSequence(targetEnemy));
-            }
+            Debug.Log("Враг мёртв, бой не проводится");
+            FinishAttackEarly();
+            yield break;
         }
 
-        // Небольшая задержка для возврата в позу
+        Debug.Log("Враг закончил атаку (Animation Event) - начинаем расчёт боя!");
+
+        if (combat != null)
+        {
+            StartCoroutine(FightSequence(targetEnemy));
+        }
+
         yield return new WaitForSeconds(0.2f);
 
         isAttacking = false;
@@ -321,13 +326,15 @@ public class PlayerController : MonoBehaviour
 
     void UpdatePlayerHeight()
     {
-        Vector3 rayStart = transform.position + Vector3.up * 3f;
+        // Бросаем луч от центра объекта вниз
+        Vector3 rayStart = transform.position;
         int groundLayerMask = LayerMask.GetMask("Ground");
 
-        if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 8f, groundLayerMask))
+        if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 0f, groundLayerMask))
         {
-            float targetHeight = hit.point.y + 0.5f;
-            float newY = Mathf.MoveTowards(transform.position.y, targetHeight, 8f * Time.deltaTime);
+            // Прижимаем строго к поверхности земли (без дополнительного сдвига)
+            float targetHeight = hit.point.y;
+            float newY = Mathf.MoveTowards(transform.position.y, targetHeight, 100f * Time.deltaTime);
             transform.position = new Vector3(transform.position.x, newY, transform.position.z);
             isGrounded = true;
         }
@@ -394,6 +401,11 @@ public class PlayerController : MonoBehaviour
     private bool IsDead()
     {
         return animator != null && animator.GetBool("IsDead");
+    }
+
+    public void SetCanMoveAfterVictory(bool can)
+    {
+        canMoveAfterVictory = can;
     }
 
     void OnDrawGizmosSelected()
