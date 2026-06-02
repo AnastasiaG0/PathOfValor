@@ -1,6 +1,7 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -214,11 +215,6 @@ public class GameManager : MonoBehaviour
     {
         enemiesKilled++;
         UpdateKillsDisplay();
-
-        if (enemiesKilled >= totalEnemies && totalEnemies > 0)
-        {
-            GameOver(true);
-        }
     }
 
     public void UpdateKillsDisplay()
@@ -260,7 +256,14 @@ public class GameManager : MonoBehaviour
 
     void ShowVictoryScreen()
     {
-        Debug.Log($"=== ShowVictoryScreen: currentLevel={currentLevel}, totalLevels={totalLevels} ===");
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.sendNavigationEvents = true;
+        }
 
         if (victoryPanel != null)
             victoryPanel.SetActive(true);
@@ -277,14 +280,14 @@ public class GameManager : MonoBehaviour
         if (victoryEnemiesKilledText != null)
             victoryEnemiesKilledText.text = $"Убито врагов: {enemiesKilled}";
 
+        ShowGameComplete();
+
         // ===== ПРОВЕРКА НА ПОСЛЕДНИЙ УРОВЕНЬ =====
-        if (currentLevel >= totalLevels)
+        /*if (currentLevel >= totalLevels)
         {
-            Debug.Log("🎉 LAST LEVEL! Calling ShowGameComplete() 🎉");
             ShowGameComplete();
             return;  // Выходим, чтобы не настраивать кнопку следующего уровня
-        }
-        // =========================================
+        }*/
 
         int nextLevel = currentLevel + 1;
         bool hasNextLevel = nextLevel <= totalLevels;
@@ -323,7 +326,6 @@ public class GameManager : MonoBehaviour
     {
         PlayerPrefs.SetInt($"Level_{currentLevel}_Completed", 1);
         PlayerPrefs.Save();
-        Debug.Log($"Level {currentLevel} marked as completed!");
     }
 
     bool CheckNextLevelExists()
@@ -338,12 +340,24 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt("SelectedLevel", currentLevel);
         PlayerPrefs.Save();
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        // ВЫГРУЖАЕМ старую сцену уровня
+        Scene oldLevelScene = SceneManager.GetSceneByName($"Level{currentLevel}");
+        /*if (oldLevelScene.isLoaded)
+        {
+            SceneManager.UnloadSceneAsync(oldLevelScene);
+        }
+
+        // Перезагружаем Game (она заново загрузит уровень)*/
+        SceneManager.LoadScene("Game");
     }
 
     void LoadNextLevel()
     {
-        int nextLevel = currentLevel + 1;
+        ShowGameComplete();
+        return;
+
+        /*int nextLevel = currentLevel + 1;
 
         if (!CheckNextLevelExists())
         {
@@ -356,7 +370,7 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt("SelectedLevel", nextLevel);
         PlayerPrefs.Save();
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);*/
     }
 
     void ShowGameComplete()
@@ -365,7 +379,7 @@ public class GameManager : MonoBehaviour
 
         if (victoryResultText != null)
         {
-            victoryResultText.text = "ИГРА ПРОЙДЕНА!";
+            victoryResultText.text = "КОНЕЦ ИГРЫ";
             Debug.Log("VictoryResultText updated");
         }
         else
@@ -375,7 +389,7 @@ public class GameManager : MonoBehaviour
 
         if (victorylevelCompletedText != null)
         {
-            victorylevelCompletedText.text = "Поздравляем! Вы прошли всю игру!";
+            victorylevelCompletedText.text = "";
             Debug.Log("victorylevelCompletedText updated");
         }
         else
@@ -432,7 +446,26 @@ public class GameManager : MonoBehaviour
                 bool isPaused = pausePanel.activeSelf;
                 pausePanel.SetActive(!isPaused);
                 Time.timeScale = isPaused ? 1f : 0f;
+
+                if (!isPaused) // Открываем паузу
+                {
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+
+                    // === КЛЮЧЕВОЕ: принудительно обновляем EventSystem ===
+                    if (EventSystem.current != null)
+                    {
+                        EventSystem.current.SetSelectedGameObject(null);
+                        // Сбрасываем драг состояние
+                        EventSystem.current.sendNavigationEvents = true;
+                    }
+                }
+                else // Закрываем паузу
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
             }
         }
-    }
+    } 
 }

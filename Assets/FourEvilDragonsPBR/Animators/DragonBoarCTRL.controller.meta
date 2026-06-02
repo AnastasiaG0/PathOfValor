@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8551153acd9c767438d03ebfd6cd0871
+timeCreated: 1476234570
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 77121
+  packageName: Dragon the Terror Bringer and Dragon Boar
+  packageVersion: 1.1
+  assetPath: Assets/FourEvilDragonsPBR/Animators/DragonBoarCTRL.controller
+  uploadId: 345602

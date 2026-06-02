@@ -109,7 +109,12 @@ public class MainMenu : MonoBehaviour
         }
 
         if (startButton != null)
+        {
             startButton.onClick.AddListener(() => ShowLevelSelect());
+            // Для одного уровня !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            startButton.onClick.AddListener(() => StartGameWithLevel1());
+        }
+
 
         if (controlsButton != null)
             controlsButton.onClick.AddListener(() => StartCoroutine(ShowControlsWithAnimation()));
@@ -122,6 +127,15 @@ public class MainMenu : MonoBehaviour
 
         if (backButton != null)
             backButton.onClick.AddListener(() => StartCoroutine(BackToMenuWithAnimation()));
+    }
+
+    // Для одного уровня !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    void StartGameWithLevel1()
+    {
+        PlayClickSound();
+        PlayerPrefs.SetInt("SelectedLevel", 1);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene("Game");
     }
 
     public void ShowLevelSelect()
@@ -239,7 +253,7 @@ public class MainMenu : MonoBehaviour
     {
         Vector3 originalScale = buttonTransform.localScale;
         buttonTransform.localScale = originalScale * 0.95f;
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSecondsRealtime(0.05f);
         buttonTransform.localScale = originalScale;
     }
 
@@ -298,7 +312,7 @@ public class MainMenu : MonoBehaviour
 
     IEnumerator AnimateButtonAppearance(Transform buttonTransform, float delay)
     {
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSecondsRealtime(delay);
         float elapsed = 0;
         Vector3 startScale = Vector3.zero;
         int index = System.Array.IndexOf(menuButtons, buttonTransform.GetComponent<Button>());

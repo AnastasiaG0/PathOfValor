@@ -30,7 +30,7 @@ public class LevelSelectUI : MonoBehaviour
     void Start()
     {
         // Загружаем сохранённый прогресс
-        LoadProgress();
+        /*LoadProgress();
 
         // Назначаем обработчики
         if (startGameButton != null)
@@ -44,7 +44,17 @@ public class LevelSelectUI : MonoBehaviour
 
         // Обновляем UI
         UpdateSelectedLevelDisplay();
-        UpdateStartButtonState();
+        UpdateStartButtonState();*/
+
+        StartGameDirectly();
+    }
+
+    // Сразу запустить игру
+    void StartGameDirectly()
+    {
+        PlayerPrefs.SetInt("SelectedLevel", 1);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene("Game");
     }
 
     void LoadProgress()

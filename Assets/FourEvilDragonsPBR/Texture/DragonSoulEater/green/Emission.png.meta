@@ -3,7 +3,7 @@ guid: 4d8c700cdf261c4488293282cba6ce2c
 TextureImporter:
   fileIDToRecycleName: {}
   externalObjects: {}
-  serializedVersion: 9
+  serializedVersion: 7
   mipmaps:
     mipMapMode: 0
     enableMipMap: 1
@@ -99,8 +99,8 @@ TextureImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 78923
-  packageName: Four Evil Dragons Pack PBR
-  packageVersion: 1.3
+  productId: 77121
+  packageName: Dragon the Terror Bringer and Dragon Boar
+  packageVersion: 1.1
   assetPath: Assets/FourEvilDragonsPBR/Texture/DragonSoulEater/green/Emission.png
-  uploadId: 422264
+  uploadId: 345602

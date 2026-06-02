@@ -27,6 +27,9 @@ public class Enemy : MonoBehaviour
     [Header("Компоненты")]
     public Animator animator;
 
+    [Header("Куб силы над головой")]
+    public CubeRotator headCube;
+
     public System.Action OnAttackFinished;
     public System.Action OnDeathStarted;
     public System.Action OnHitMoment;
@@ -47,7 +50,25 @@ public class Enemy : MonoBehaviour
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
+        {
             player = playerObj.transform;
+
+            // Начальная проверка для куба (если игрок уже в зоне)
+            if (headCube != null && useExtraDetection)
+            {
+                float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+                bool playerInExtraRange = distanceToPlayer <= extraDetectionRange;
+
+                if (playerInExtraRange)
+                {
+                    headCube.FadeIn();
+                }
+                else
+                {
+                    headCube.FadeOut();
+                }
+            }
+        }
     }
 
     void Update()
@@ -85,6 +106,18 @@ public class Enemy : MonoBehaviour
         else
         {
             isPlayerInExtraRange = false;
+        }
+
+        if (headCube != null)
+        {
+            if (isPlayerInExtraRange)
+            {
+                headCube.FadeIn();
+            }
+            else
+            {
+                headCube.FadeOut();
+            }
         }
 
         if (distanceToPlayer <= attackRange && !isAttacking && !isDead)
@@ -226,12 +259,23 @@ public class Enemy : MonoBehaviour
         if (col != null)
             col.enabled = false;
 
-        if (animator != null)
+        if (headCube != null)
         {
-            animator.SetTrigger("Die");
-        }
+            headCube.Pop();
 
-        Debug.Log("Враг начал анимацию смерти");
+            if (animator != null)
+            {
+                animator.SetTrigger("Die");
+            }
+        }
+        else
+        {
+            // Если куба нет, просто умираем
+            if (animator != null)
+            {
+                animator.SetTrigger("Die");
+            }
+        }
     }
 
     public void Die()

@@ -136,7 +136,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: c9d640587961e6946ab834957582c1e5, type: 3}
+  m_Motion: {fileID: 7400000, guid: 42bc9f3fb79bb7348ba076f1428003d0, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -186,7 +186,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 7547f269f53a7854691d11ae87ee43fe, type: 3}
+  m_Motion: {fileID: 7400000, guid: a56b20d437481c24fb057642cecee2a0, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -303,9 +303,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.4
+  m_TransitionDuration: 0.46
   m_TransitionOffset: 0
-  m_ExitTime: 0.9324324
+  m_ExitTime: 0.8
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -430,7 +430,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 2e4bf80fd793ef741b125fb8e72c66d3, type: 3}
+  m_Motion: {fileID: 7400000, guid: 7059c37143d013b42b0afbc5b3621024, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -518,7 +518,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Fly Float
+  m_Name: Fly Idle
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -533,7 +533,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 089c3556d0597fb4da73c7d9a82eea8e, type: 3}
+  m_Motion: {fileID: 7400000, guid: c744e3fe376c8d1458ff900f809467c9, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -568,7 +568,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Fly Flame Attack
+  m_Name: Fly Attack
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -583,7 +583,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 764cc722499a7484eb3356aef3948370, type: 3}
+  m_Motion: {fileID: 7400000, guid: a52386406eb753746be13ef65fd3f1f5, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -632,7 +632,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 200ccd65f82bd8241a49be0dd3d24966, type: 3}
+  m_Motion: {fileID: 7400000, guid: 8f03a05c43a711648b2b467751a9790a, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -658,7 +658,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: dbfeb302ae436db4691586db61fc101c, type: 3}
+  m_Motion: {fileID: 7400000, guid: 267496dbb881103479d7a2a6c98462f7, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -685,7 +685,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: c46ce8949fe48414f98d8535ffdf9413, type: 3}
+  m_Motion: {fileID: 7400000, guid: b36828e153ba16c44b8dfa0089781899, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

@@ -1,69 +1,47 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class VictoryButtonsController : MonoBehaviour
 {
     [Header("Кнопки")]
     public Button mainMenuButton;
-    public Button restartButton;
+    public Button replayButton;  // ← переименовал с restartButton на replayButton
+
+    void OnEnable()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.sendNavigationEvents = true;
+        }
+    }
 
     void Start()
     {
-        // Привязываем обработчики к кнопкам
         if (mainMenuButton != null)
         {
-            mainMenuButton.onClick.AddListener(OnMainMenuClick);
-            Debug.Log("MainMenuButton привязана!");
+            mainMenuButton.onClick.RemoveAllListeners();
+            mainMenuButton.onClick.AddListener(() => {
+                Debug.Log("Victory: Главное меню");
+                GameManager.Instance?.LoadMainMenu();
+            });
+        }
+
+        if (replayButton != null)  // ← переименовано
+        {
+            replayButton.onClick.RemoveAllListeners();
+            replayButton.onClick.AddListener(() => {
+                Debug.Log("Victory: Играть заново");
+                GameManager.Instance?.RestartGame();
+            });
         }
         else
         {
-            Debug.LogError("MainMenuButton не назначена в VictoryButtonsController!");
+            Debug.LogError("ReplayButton не назначен в VictoryButtonsController!");
         }
-
-        if (restartButton != null)
-        {
-            restartButton.onClick.AddListener(OnRestartClick);
-            Debug.Log("RestartButton привязана!");
-        }
-        else
-        {
-            Debug.LogError("RestartButton не назначена в VictoryButtonsController!");
-        }
-    }
-
-    void OnMainMenuClick()
-    {
-        Debug.Log("Нажата кнопка 'В главное меню'");
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.LoadMainMenu();
-        }
-        else
-        {
-            Debug.LogError("GameManager.Instance не найден!");
-        }
-    }
-
-    void OnRestartClick()
-    {
-        Debug.Log("Нажата кнопка 'Играть заново'");
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.RestartGame();
-        }
-        else
-        {
-            Debug.LogError("GameManager.Instance не найден!");
-        }
-    }
-
-    // Опционально: очистка слушателей при отключении
-    void OnDisable()
-    {
-        if (mainMenuButton != null)
-            mainMenuButton.onClick.RemoveListener(OnMainMenuClick);
-
-        if (restartButton != null)
-            restartButton.onClick.RemoveListener(OnRestartClick);
     }
 }

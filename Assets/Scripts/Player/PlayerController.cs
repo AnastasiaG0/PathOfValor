@@ -326,16 +326,17 @@ public class PlayerController : MonoBehaviour
 
     void UpdatePlayerHeight()
     {
-        // Бросаем луч от центра объекта вниз
-        Vector3 rayStart = transform.position;
         int groundLayerMask = LayerMask.GetMask("Ground");
+        float rayLength = 0.5f;
 
-        if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 0f, groundLayerMask))
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength, groundLayerMask))
         {
-            // Прижимаем строго к поверхности земли (без дополнительного сдвига)
-            float targetHeight = hit.point.y;
-            float newY = Mathf.MoveTowards(transform.position.y, targetHeight, 100f * Time.deltaTime);
+            float targetY = hit.point.y;
+
+            // Мягкое прижатие с ограничением скорости
+            float newY = Mathf.Lerp(transform.position.y, targetY, Time.deltaTime * 15f);
             transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+
             isGrounded = true;
         }
         else
