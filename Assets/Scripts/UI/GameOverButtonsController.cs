@@ -9,7 +9,7 @@ public class GameOverButtonsController : MonoBehaviour
 
     void Start()
     {
-        if (mainMenuButton != null)
+        /*if (mainMenuButton != null)
         {
             mainMenuButton.onClick.RemoveAllListeners();
             mainMenuButton.onClick.AddListener(OnMainMenuClick);
@@ -29,7 +29,7 @@ public class GameOverButtonsController : MonoBehaviour
         else
         {
             Debug.LogError("RestartButton не назначена в GameOverButtonsController!");
-        }
+        }*/
     }
 
     void OnMainMenuClick()

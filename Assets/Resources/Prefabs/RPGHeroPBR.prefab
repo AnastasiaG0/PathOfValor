@@ -936,7 +936,6 @@ GameObject:
   - component: {fileID: 3220218251419615983}
   - component: {fileID: -2098206840167455433}
   - component: {fileID: -7078051958405567099}
-  - component: {fileID: 5631538398818514378}
   m_Layer: 3
   m_Name: RPGHeroPBR
   m_TagString: Player
@@ -997,11 +996,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
   currentPower: 5
   maxPower: 1000
-  victoryEffectPrefab: {fileID: 0}
-  deathEffectPrefab: {fileID: 0}
-  powerUpEffectPrefab: {fileID: 0}
-  victorySound: {fileID: 0}
-  deathSound: {fileID: 0}
   powerText: {fileID: 0}
 --- !u!114 &-8201534108190593887
 MonoBehaviour:
@@ -1022,11 +1016,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   attackRange: 2
+  attackCooldown: 0.5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 0
-  comboWindow: 0.8
-  attackCooldown: 0.5
 --- !u!114 &-3510642025451761654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1101,28 +1094,6 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!64 &5631538398818514378
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1319517528997712}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
 --- !u!1 &1323932758960028
 GameObject:
   m_ObjectHideFlags: 0

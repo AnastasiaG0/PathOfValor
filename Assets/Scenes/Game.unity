@@ -5692,7 +5692,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VictoryButtonsController
   mainMenuButton: {fileID: 0}
-  restartButton: {fileID: 759650538}
+  replayButton: {fileID: 0}
 --- !u!114 &2146418573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5750,15 +5750,15 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 347150672}
+  - {fileID: 1135933054}
+  - {fileID: 690355006}
+  - {fileID: 763196070}
+  - {fileID: 1115036888}
   - {fileID: 633251861}
   - {fileID: 1047438525}
-  - {fileID: 347150672}
   - {fileID: 1235025735}
   - {fileID: 1013366860}
   - {fileID: 1268040965}
-  - {fileID: 1135933054}
-  - {fileID: 690355006}
   - {fileID: 1340741974}
   - {fileID: 1553538456}
-  - {fileID: 1115036888}
-  - {fileID: 763196070}

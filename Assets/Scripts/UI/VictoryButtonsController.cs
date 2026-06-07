@@ -6,7 +6,7 @@ public class VictoryButtonsController : MonoBehaviour
 {
     [Header("Кнопки")]
     public Button mainMenuButton;
-    public Button replayButton;  // ← переименовал с restartButton на replayButton
+    public Button replayButton;
 
     void OnEnable()
     {
@@ -31,7 +31,7 @@ public class VictoryButtonsController : MonoBehaviour
             });
         }
 
-        if (replayButton != null)  // ← переименовано
+        if (replayButton != null)
         {
             replayButton.onClick.RemoveAllListeners();
             replayButton.onClick.AddListener(() => {

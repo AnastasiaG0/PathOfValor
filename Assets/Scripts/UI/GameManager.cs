@@ -150,39 +150,82 @@ public class GameManager : MonoBehaviour
 
     void FindAndAssignButtons()
     {
-        if (victoryPanel == null) return;
-
-        if (replayLevelButton == null)
+        // Привязка кнопок для панели победы
+        if (victoryPanel != null)
         {
-            GameObject btn = FindInChildren(victoryPanel, "ReplayButton");
-            if (btn != null) replayLevelButton = btn.GetComponent<Button>();
+            if (replayLevelButton == null)
+            {
+                GameObject btn = FindInChildren(victoryPanel, "ReplayButton");
+                if (btn != null) replayLevelButton = btn.GetComponent<Button>();
+            }
+
+            if (nextLevelButton == null)
+            {
+                GameObject btn = FindInChildren(victoryPanel, "NextLevelButton");
+                if (btn != null) nextLevelButton = btn.GetComponent<Button>();
+            }
+
+            if (mainMenuFromVictoryButton == null)
+            {
+                GameObject btn = FindInChildren(victoryPanel, "MainMenuButton");
+                if (btn != null) mainMenuFromVictoryButton = btn.GetComponent<Button>();
+            }
+
+            if (nextLevelButton != null && nextLevelButtonText == null)
+            {
+                nextLevelButtonText = nextLevelButton.GetComponentInChildren<TMP_Text>();
+            }
+
+            if (replayLevelButton != null)
+                replayLevelButton.onClick.AddListener(ReplayCurrentLevel);
+
+            if (nextLevelButton != null)
+                nextLevelButton.onClick.AddListener(LoadNextLevel);
+
+            if (mainMenuFromVictoryButton != null)
+                mainMenuFromVictoryButton.onClick.AddListener(LoadMainMenu);
         }
 
-        if (nextLevelButton == null)
+        // ===== ПРИВЯЗКА КНОПОК ДЛЯ ПАНЕЛИ ПОРАЖЕНИЯ =====
+        if (gameOverPanel != null)
         {
-            GameObject btn = FindInChildren(victoryPanel, "NextLevelButton");
-            if (btn != null) nextLevelButton = btn.GetComponent<Button>();
+            // Находим кнопку "Главное меню" на панели поражения
+            Button gameOverMainMenuButton = FindInChildren(gameOverPanel, "MainMenuButton")?.GetComponent<Button>();
+            if (gameOverMainMenuButton != null)
+            {
+                gameOverMainMenuButton.onClick.RemoveAllListeners();
+                gameOverMainMenuButton.onClick.AddListener(LoadMainMenu);
+                Debug.Log("GameOver MainMenuButton привязана!");
+            }
+            else
+            {
+                Debug.LogWarning("MainMenuButton не найдена на GameOverPanel!");
+            }
+
+            // Находим кнопку "Играть заново" на панели поражения
+            Button gameOverRestartButton = FindInChildren(gameOverPanel, "RestartButton")?.GetComponent<Button>();
+            if (gameOverRestartButton != null)
+            {
+                gameOverRestartButton.onClick.RemoveAllListeners();
+                gameOverRestartButton.onClick.AddListener(RestartGame);
+                Debug.Log("GameOver RestartButton привязана!");
+            }
+            else
+            {
+                // Если кнопка называется ReplayButton, а не RestartButton
+                Button replayBtn = FindInChildren(gameOverPanel, "ReplayButton")?.GetComponent<Button>();
+                if (replayBtn != null)
+                {
+                    replayBtn.onClick.RemoveAllListeners();
+                    replayBtn.onClick.AddListener(RestartGame);
+                    Debug.Log("GameOver ReplayButton привязана!");
+                }
+                else
+                {
+                    Debug.LogWarning("RestartButton/ReplayButton не найдена на GameOverPanel!");
+                }
+            }
         }
-
-        if (mainMenuFromVictoryButton == null)
-        {
-            GameObject btn = FindInChildren(victoryPanel, "MainMenuButton");
-            if (btn != null) mainMenuFromVictoryButton = btn.GetComponent<Button>();
-        }
-
-        if (nextLevelButton != null && nextLevelButtonText == null)
-        {
-            nextLevelButtonText = nextLevelButton.GetComponentInChildren<TMP_Text>();
-        }
-
-        if (replayLevelButton != null)
-            replayLevelButton.onClick.AddListener(ReplayCurrentLevel);
-
-        if (nextLevelButton != null)
-            nextLevelButton.onClick.AddListener(LoadNextLevel);
-
-        if (mainMenuFromVictoryButton != null)
-            mainMenuFromVictoryButton.onClick.AddListener(LoadMainMenu);
     }
 
     GameObject FindInChildren(GameObject parent, string name)
@@ -310,6 +353,15 @@ public class GameManager : MonoBehaviour
 
     void ShowGameOverScreen()
     {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.sendNavigationEvents = true;
+        }
+
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);
 
